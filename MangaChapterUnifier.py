@@ -3,7 +3,7 @@ import shutil
 from PIL import Image
 import time
 
-manganame = r"Legend of the Northern Blade"
+manganame = r"One Piece"
 start = time.time()
 mangasfolder = r"C:\Users\tamme\Documents\Mangas"
 mangapath = mangasfolder+"\\"+manganame
