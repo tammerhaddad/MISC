@@ -1,5 +1,5 @@
 import random
-with open('meals.txt', 'r') as file:
+with open("C:\Users\tamme\OneDrive\Desktop\Files\Code\MISC\meals.txt", 'r') as file:
     meals = file.readlines()
 random_meals = random.sample(meals, 10)
 for i, meal in enumerate(random_meals, 1):
