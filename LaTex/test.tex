@@ -1,0 +1,55 @@
+\documentclass{article}
+\usepackage{amsmath}
+
+\begin{document}
+
+\title{Proof of the Pythagorean Theorem}
+\author{}
+\date{}
+\maketitle
+
+\section*{Proof}
+
+Consider a right triangle with sides of length \(a\), \(b\), and hypotenuse \(c\).
+
+We can construct a square with side length \(a + b\) and place four copies of the right triangle inside it, as shown below:
+
+\[
+\begin{array}{|c|c|c|c|}
+\hline
+& & & \\
+\hline
+& & & \\
+\hline
+& & & \\
+\hline
+\end{array}
+\]
+
+The area of the large square is \((a + b)^2\).
+
+The four right triangles each have an area of \(\frac{1}{2}ab\).
+
+The remaining area in the center is a smaller square with side length \(c\), so its area is \(c^2\).
+
+Thus, we have:
+
+\[
+(a + b)^2 = 4 \left( \frac{1}{2} ab \right) + c^2
+\]
+
+Simplifying, we get:
+
+\[
+a^2 + 2ab + b^2 = 2ab + c^2
+\]
+
+Subtracting \(2ab\) from both sides, we obtain:
+
+\[
+a^2 + b^2 = c^2
+\]
+
+This completes the proof of the Pythagorean theorem.
+
+\end{document}
