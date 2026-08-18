@@ -1,84 +1,93 @@
-import ebooklib
-from ebooklib import epub
-from bs4 import BeautifulSoup
-from gtts import gTTS
-from tqdm import tqdm
-from pydub import AudioSegment
-import time
-from collections import deque
-from datetime import datetime, timedelta
+import torch
+import torchaudio
+from tortoise.api import TextToSpeech, MODELS_DIR
+from tortoise.utils.audio import load_voice
+import os
+import re
 
-# Initialize a deque to keep track of request timestamps
-request_times = deque()
+def split_text_into_chunks(text, max_chars=300):
+    """Split text into chunks at sentence boundaries, keeping under max_chars"""
+    # Split by sentence endings
+    sentences = re.split(r'(?<=[.!?])\s+', text)
+    
+    chunks = []
+    current_chunk = ""
+    
+    for sentence in sentences:
+        # If adding this sentence would exceed max_chars, start a new chunk
+        if len(current_chunk) + len(sentence) > max_chars and current_chunk:
+            chunks.append(current_chunk.strip())
+            current_chunk = sentence
+        else:
+            current_chunk += " " + sentence if current_chunk else sentence
+    
+    # Add the last chunk if it's not empty
+    if current_chunk.strip():
+        chunks.append(current_chunk.strip())
+    
+    return chunks
 
-def rate_limited_request():
-  global request_times
-  now = datetime.now()
-  # Remove timestamps older than one hour
-  while request_times and now - request_times[0] > timedelta(hours=1):
-    request_times.popleft()
-  if len(request_times) >= 100:
-    # Calculate the time to wait until the next request can be made
-    wait_time = (request_times[0] + timedelta(hours=1) - now).total_seconds()
-    print(f"Rate limit reached. Waiting for {wait_time} seconds.")
-    time.sleep(wait_time)
-  request_times.append(now)
+def text_file_to_mp3(input_path, output_path, voice='train_mouse', preset='high_quality'):
+    # Read text from file
+    with open(input_path, 'r', encoding='utf-8') as f:
+        text = f.read()
+    
+    # Check for GPU availability
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print(f"Using device: {device}")
+    
+    # Initialize TTS with GPU support
+    tts = TextToSpeech(use_deepspeed=False, kv_cache=True, device=device)
+    
+    # Load voice
+    voice_samples, conditioning_latents = load_voice(voice)
+    
+    # Split text into manageable chunks
+    text_chunks = split_text_into_chunks(text)
+    print(f"Split text into {len(text_chunks)} chunks")
+    
+    # Generate audio for each chunk
+    audio_chunks = []
+    for i, chunk in enumerate(text_chunks):
+        print(f"Processing chunk {i+1}/{len(text_chunks)}...")
+        
+        gen = tts.tts_with_preset(
+            chunk,
+            voice_samples=voice_samples,
+            conditioning_latents=conditioning_latents,
+            preset=preset
+        )
+        
+        audio_chunks.append(gen.squeeze(0))
+    
+    # Concatenate all audio chunks
+    print("Concatenating audio chunks...")
+    full_audio = torch.cat(audio_chunks, dim=1)
+    
+    # Move tensor to CPU for saving
+    full_audio_cpu = full_audio.cpu()
+    
+    # Save as wav
+    wav_path = output_path.replace('.mp3', '.wav')
+    torchaudio.save(wav_path, full_audio_cpu, 24000)
+    
+    # # Convert wav to mp3
+    # import subprocess
+    # subprocess.run(['ffmpeg', '-y', '-i', wav_path, output_path], check=True)
+    
+    # # Optionally remove wav file
+    # os.remove(wav_path)
 
-def extract_text_from_epub(file_path):
-  book = epub.read_epub(file_path)
-  text = []
-  items = list(book.get_items())
-  for item in tqdm(items, desc="Extracting text", unit="item"):
-    if item.get_type() == ebooklib.ITEM_DOCUMENT:
-      soup = BeautifulSoup(item.get_body_content(), 'html.parser')
-      text.append(soup.get_text())
-  return ' '.join(text)
-
-def split_text(text, max_length=5000):
-  words = text.split()
-  chunks = []
-  current_chunk = []
-  current_length = 0
-  for word in words:
-    if current_length + len(word) + 1 > max_length:
-      chunks.append(' '.join(current_chunk))
-      current_chunk = []
-      current_length = 0
-    current_chunk.append(word)
-    current_length += len(word) + 1
-  if current_chunk:
-    chunks.append(' '.join(current_chunk))
-  return chunks
-
-def text_to_speech(text, output_file):
-  rate_limited_request()
-  tts = gTTS(text, lang='en')
-  tts.save(output_file)
-
-def merge_audio_files(audio_files, output_file):
-  combined = AudioSegment.empty()
-  for file in audio_files:
-    combined += AudioSegment.from_mp3(file)
-  combined.export(output_file, format="mp3")
-
-def epub_to_audiobook(epub_file, output_audio_file):
-  text = extract_text_from_epub(epub_file)
-  chunks = split_text(text)
-  audio_files = []
-  for i, chunk in enumerate(tqdm(chunks, desc="Processing chunks", unit="chunk")):
-    chunk_file = f"epubToMp3Chunks/chunk_{i}.mp3"
-    try:
-      with tqdm(total=1, desc=f"Converting chunk {i} to speech", unit="request") as pbar:
-        text_to_speech(chunk, chunk_file)
-        pbar.update(1)
-      audio_files.append(chunk_file)
-    except Exception as e:
-      print(f"Error: {e}. Failed to process chunk {i}.")
-      return
-    print("Chunk", i, "done")
-  merge_audio_files(audio_files, output_audio_file)
-
-# Example usage
-epub_file = r"C:\Users\tamme\OneDrive\Desktop\Life Reset Series (Shemer Kuznits).epub"
-output_audio_file = r"C:\Users\tamme\OneDrive\Desktop\Life Reset Series (Shemer Kuznits).mp3"
-epub_to_audiobook(epub_file, output_audio_file)
+if __name__ == "__main__":
+    import sys
+    if len(sys.argv) != 3:
+        print("Usage: python epubToMp3 <input_text_file> <output_mp3_file>")
+        print("Example: python epubToMp3 input.txt output.mp3")
+        sys.exit(1)
+    
+    input_file = sys.argv[1]
+    output_file = sys.argv[2]
+    
+    print(f"Converting {input_file} to {output_file}...")
+    text_file_to_mp3(input_file, output_file)
+    print("Conversion complete!")

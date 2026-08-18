@@ -1,6 +1,8 @@
 from openpyxl import load_workbook
 import datetime
 
+# FOR logging costs when i was in london 2022-23
+
 # load and activate the sheet
 path = r"C:\Users\tamme\onedrive\desktop\files\docs\Money.xlsx"
 wb = load_workbook(path)

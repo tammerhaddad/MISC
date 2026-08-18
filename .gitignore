@@ -1,0 +1,15 @@
+# Model weights — GitHub hard-rejects any single file over 100 MB, and a
+# rejected blob anywhere in the pushed history blocks the whole push, not just
+# the tip. kokoro-v1.0.onnx is ~310 MB. Re-download these into epub2audiobook/
+# instead of committing them.
+epub2audiobook/kokoro-v1.0.onnx
+epub2audiobook/voices-v1.0.bin
+*.onnx
+*.safetensors
+*.gguf
+
+# Claude Code worktrees / local agent state
+.claude/
+
+# Local scratch backups
+*.bak-preclaude
