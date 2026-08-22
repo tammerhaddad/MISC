@@ -7,18 +7,23 @@ import re
 
 def split_text_into_chunks(text, max_chars=300):
     """Split text into chunks at sentence boundaries, keeping under max_chars"""
+    if max_chars < 1:
+        raise ValueError(f"max_chars must be at least 1, got {max_chars}")
+
     # Split by sentence endings
     sentences = re.split(r'(?<=[.!?])\s+', text)
 
     # A sentence can be longer than max_chars all by itself -- epub text often
     # has headings and passages with no terminal punctuation -- so break those
-    # on word boundaries instead of handing an oversized chunk to the model.
+    # at the last word boundary that fits. Any whitespace counts, not just
+    # " ": the chapter files this reads are newline-separated.
     pieces = []
     for sentence in sentences:
+        sentence = sentence.strip()
         while len(sentence) > max_chars:
-            cut = sentence.rfind(' ', 0, max_chars + 1)
-            if cut <= 0:
-                cut = max_chars  # a single word longer than max_chars
+            boundary = re.search(r'\s\S*$', sentence[:max_chars + 1])
+            # no boundary to use means a single word longer than max_chars
+            cut = boundary.start() if boundary and boundary.start() > 0 else max_chars
             pieces.append(sentence[:cut].strip())
             sentence = sentence[cut:].lstrip()
         if sentence:
@@ -28,8 +33,9 @@ def split_text_into_chunks(text, max_chars=300):
     current_chunk = ""
 
     for sentence in pieces:
-        # If adding this sentence would exceed max_chars, start a new chunk
-        if len(current_chunk) + len(sentence) > max_chars and current_chunk:
+        # If adding this sentence would exceed max_chars, start a new chunk.
+        # The +1 is the space joined in below; without it chunks ran one over.
+        if current_chunk and len(current_chunk) + 1 + len(sentence) > max_chars:
             chunks.append(current_chunk.strip())
             current_chunk = sentence
         else:
@@ -46,6 +52,13 @@ def text_file_to_mp3(input_path, output_path, voice='train_mouse', preset='high_
     with open(input_path, 'r', encoding='utf-8') as f:
         text = f.read()
     
+    # Split text into manageable chunks first, so an empty input fails here
+    # rather than after the model and voice have finished loading
+    text_chunks = split_text_into_chunks(text)
+    print(f"Split text into {len(text_chunks)} chunks")
+    if not text_chunks:
+        raise ValueError(f"{input_path} has no text to synthesize")
+
     # Check for GPU availability
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Using device: {device}")
@@ -56,12 +69,6 @@ def text_file_to_mp3(input_path, output_path, voice='train_mouse', preset='high_
     # Load voice
     voice_samples, conditioning_latents = load_voice(voice)
     
-    # Split text into manageable chunks
-    text_chunks = split_text_into_chunks(text)
-    print(f"Split text into {len(text_chunks)} chunks")
-    if not text_chunks:
-        raise ValueError(f"{input_path} has no text to synthesize")
-
     # Generate audio for each chunk
     audio_chunks = []
     for i, chunk in enumerate(text_chunks):

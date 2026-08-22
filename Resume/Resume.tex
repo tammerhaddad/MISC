@@ -2,16 +2,17 @@
 \usepackage[margin=0.45in]{geometry}
 \usepackage{enumitem}
 \usepackage{titlesec}
-\usepackage{hyperref}
-\usepackage{fontawesome5}
+% hidelinks: the default draws a cyan border around each link
+\usepackage[hidelinks]{hyperref}
 \usepackage{xcolor}
-\usepackage{graphicx}
 
 \definecolor{linkedinblue}{RGB}{0, 119, 181}
 
 \pagestyle{empty}
 \setlength{\parindent}{0pt}
 \linespread{0.93}\selectfont
+% \uppercase, not \MakeUppercase -- the latter breaks titlesec's argument
+% handling here ("Use of \ttl@row@i doesn't match its definition")
 \titleformat{\section}{\large\bfseries\uppercase}{}{0em}{}[\titlerule]
 \titlespacing{\section}{0pt}{6pt}{3pt}
 \setlist[itemize]{nosep, leftmargin=*, topsep=1pt}
@@ -20,7 +21,7 @@
 
 \begin{center}
     {\LARGE\bfseries Tammer Haddad}\\[3pt]
-    \href{mailto:tammerrh@gmail.com}{tammerrh@gmail.com} \, | \, +1 (857)-288-8573 \, | \, \href{https://linkedin.com/in/tammerhaddad}{\underline{\textcolor{linkedinblue}{LinkedIn}}}\\[1pt]
+    \href{mailto:tammerrh@gmail.com}{tammerrh@gmail.com} \, $|$ \, +1 (857) 288-8573 \, $|$ \, \href{https://linkedin.com/in/tammerhaddad}{\underline{\textcolor{linkedinblue}{LinkedIn}}}\\[1pt]
     \textbf{Pending Interim Secret Clearance}\\[1pt]
 \end{center}
 
@@ -28,23 +29,23 @@
 
 \textbf{Northeastern University}, Boston, MA \hfill Sep. 2023 -- Present\\
 \textit{Khoury College of Computer Sciences} \hfill Expected Graduation: May 2028\\
-Candidate for B.S. in \textbf{Computer Science} and \textbf{Economics}, Minor in \textbf{Robotics} \, | \, \textbf{GPA: 3.49}\\
+Candidate for B.S. in \textbf{Computer Science} and \textbf{Economics}, Minor in \textbf{Robotics} \, $|$ \, \textbf{GPA: 3.49}\\
 \textit{Relevant Coursework:} Artificial Intelligence, Algorithms and Data Structures, Object Oriented Design, Law and Ethics in Cybersecurity, Computer Systems, Discrete Structures, Intro to Business Statistics, Applied Economics\\
 \textit{Activities:} Open Volleyball MB, Club Spikeball, 1lb Combat Robotics Team Lead 2024\\[4pt]
 \textbf{Harvard University Extension:} Calculus 3, Linear Algebra (MATH E-21a\&b)\hfill Aug. 2022 -- May 2023\\
-\textbf{MIT Beaver Works:} Serious Games with AI | Top Team \hfill Jul. 2022 -- Aug. 2022\\
+\textbf{MIT Beaver Works:} Serious Games with AI $|$ Top Team \hfill Jul. 2022 -- Aug. 2022\\
 \textbf{MIT Edgerton Center:} Digital Logic with Arduino \& Intro to CAD \hfill Jul. 2020
 
 \section{Experience}
 
-\textbf{Club Robotics Intern} | BJ's Wholesale Club, Marlborough, MA \hfill Jun. 2026 -- Aug. 2026
+\textbf{Club Robotics Intern} $|$ BJ's Wholesale Club, Marlborough, MA \hfill Jun. 2026 -- Aug. 2026
 \begin{itemize}
     \item Built the company's \textbf{on-shelf availability} pipeline end to end in \textbf{Databricks} (\textbf{PySpark}, \textbf{SQL}), joining \textbf{800M+} \textbf{Simbe} robot shelf-scan rows across \textbf{267 clubs} against enterprise inventory and forecast data
     \item Quantified \textbf{7.2M units} never sold since Jan. 2025 --- \textbf{\$116.5M} at listed retail, \textbf{$\sim$\$14M} in lost margin annually --- splitting each loss into \textbf{replenishment execution} vs. \textbf{allocation} failure
     \item Handed the pipeline to a full-time owner with \textbf{advanced Tableau dashboards} now used by other departments
 \end{itemize}
 
-\textbf{Robotics AI Researcher} | Undergraduate Research Fellowships, Boston, MA \hfill Jan. 2025 -- Present
+\textbf{Robotics AI Researcher} $|$ Undergraduate Research Fellowships, Boston, MA \hfill Jan. 2025 -- Present
 \begin{itemize}
     \item \textbf{AJC Merit Research Scholar} conducting \textbf{Human-Robot Interaction} research under Professor Tan Zhi; completed full-time Spring 2025 co-op, continuing part-time through academic year
     \item Engineered end-to-end \textbf{autonomous assistant robot} on \textbf{Hello Robot Stretch 3} platform, building complete \textbf{ROS 2} architecture from scratch integrating \textbf{LLM-powered intent recognition}, cascading \textbf{STT-NLP-TTS} pipeline, \textbf{facial recognition}, \textbf{autonomous navigation}, and \textbf{manipulation capabilities}
@@ -52,33 +53,33 @@ Candidate for B.S. in \textbf{Computer Science} and \textbf{Economics}, Minor in
     \item Conducted \textbf{user studies} on human-robot communication and proxemic behaviors to inform system design
 \end{itemize}
 
-\textbf{Executive Board of Directors} | Northeastern Entrepreneurs Club, Boston, MA \hfill Jan. 2024 -- Feb. 2025
+\textbf{Executive Board of Directors} $|$ Northeastern Entrepreneurs Club, Boston, MA \hfill Jan. 2024 -- Feb. 2025
 \begin{itemize}
     \item Led \textbf{community of 2000+} as Co-Director of Massachusetts' \textbf{\#1 entrepreneurship club} (\textbf{\#6 globally})
     \item Secured \textbf{\$3000+} in sponsorships through direct negotiation with industry partners and external organizations
     \item Organized cross-disciplinary workshops and \textbf{startup hackathons} building practical entrepreneurial skills
 \end{itemize}
 
-\textbf{Data Analyst Intern, Team Lead} | Aspire Institute, Remote \hfill May 2024
+\textbf{Data Analyst Intern, Team Lead} $|$ Aspire Institute, Remote \hfill May 2024
 \begin{itemize}
     \item Analyzed \textbf{30,000+ recipient} newsletter campaigns achieving \textbf{44\% open rates}; mapped click-through across \textbf{15+ content channels} and delivered strategic recommendations in \textbf{Excel} and \textbf{Tableau}
 \end{itemize}
 
 \section{Projects}
 
-\textbf{Self-Hosted AI Infrastructure Server} | \textbf{Linux}, \textbf{Docker}, \textbf{Python} \hfill Jul. 2026 -- Present
+\textbf{Self-Hosted AI Infrastructure Server} $|$ \textbf{Linux}, \textbf{Docker}, \textbf{Python} \hfill Jul. 2026 -- Present
 \begin{itemize}
     \item Rebuilt a spare laptop into an always-on \textbf{Ubuntu}/\textbf{Docker} server: \textbf{20+} containerized services and public sites behind a \textbf{Cloudflare} tunnel, on \textbf{systemd}-scheduled nightly automation
     \item Wrote a \textbf{Python} agent framework with \textbf{tiered LLM failover} (hosted API $\rightarrow$ self-hosted gateway pool $\rightarrow$ local \textbf{GPU} model), so autonomous research, briefing, and captioning agents survive losing any provider
     \item Engineered for unattended uptime: health monitoring and alerting, container self-healing, \textbf{RAPL} power capping with a reactive thermal governor, and nightly offsite backup
 \end{itemize}
 
-\textbf{Local Photo Search Engine} | \textbf{Python}, \textbf{PyTorch}, \textbf{SQLite} \hfill Jan. 2026
+\textbf{Local Photo Search Engine} $|$ \textbf{Python}, \textbf{PyTorch}, \textbf{SQLite} \hfill Jan. 2026
 \begin{itemize}
     \item Built full-stack semantic search system for \textbf{20k+ photos} combining \textbf{Florence-2} captioning, \textbf{CLIP} embeddings for natural language queries, \textbf{InsightFace} face clustering, and \textbf{perceptual hashing} for deduplication
 \end{itemize}
 
-\textbf{AI Pandemic Simulation} | \textbf{Python} \hfill Aug. 2022
+\textbf{AI Pandemic Simulation} $|$ \textbf{Python} \hfill Aug. 2022
 \begin{itemize}
     \item Led \textbf{5-person team} developing \textbf{award-winning} pandemic simulation using \textbf{Minimax algorithm} to optimize containment strategies across infection dynamics and resource allocation variables
 \end{itemize}

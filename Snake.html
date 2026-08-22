@@ -39,6 +39,7 @@
         ctx,	  /* CanvasRenderingContext2d */
         keystate, /* Object, used for keyboard inputs */
         frames,   /* number, used for animation */
+        pending,  /* number, the direction the player has asked for */
         score;	  /* number, keep track of the player score */
         /**
          * Grid datastructor, usefull in games where the game world is
@@ -188,6 +189,7 @@
             grid.init(EMPTY, COLS, ROWS);
             var sp = {x:Math.floor(COLS/2), y:ROWS-5};
             snake.init(UP, sp.x, sp.y);
+            pending = UP;
             grid.set(SNAKE, sp.x, sp.y);
             setFood();
         }
@@ -206,24 +208,27 @@
          */
         function update() {
             frames++;
-            // changing direction of the snake depending on which keys
-            // that are pressed
-            if (keystate[KEY_LEFT] && snake.direction !== RIGHT) {
-                snake.direction = LEFT;
-            }
-            if (keystate[KEY_UP] && snake.direction !== DOWN) {
-                snake.direction = UP;
-            }
-            if (keystate[KEY_RIGHT] && snake.direction !== LEFT) {
-                snake.direction = RIGHT;
-            }
-            if (keystate[KEY_DOWN] && snake.direction !== UP) {
-                snake.direction = DOWN;
-            }
+            // Record which way the player wants to go. Only latch it here --
+            // this runs every frame, but the snake only moves every fifth, so
+            // testing against snake.direction as we go let two taps inside one
+            // tick window (RIGHT, then UP, then LEFT) turn the snake back into
+            // its own neck.
+            if (keystate[KEY_LEFT])  { pending = LEFT;  }
+            if (keystate[KEY_UP])    { pending = UP;    }
+            if (keystate[KEY_RIGHT]) { pending = RIGHT; }
+            if (keystate[KEY_DOWN])  { pending = DOWN;  }
             // each five frames update the game state. Modulo 1 is always 0,
             // which made the `frames` counter pointless and stepped the snake
             // once per animation frame -- too fast to steer.
             if (frames%5 === 0) {
+                // Commit the request, unless it reverses the direction we
+                // actually last moved in. LEFT/RIGHT and UP/DOWN are 2 apart,
+                // so the opposite of d is (d + 2) % 4.
+                if (pending !== (snake.direction + 2) % 4) {
+                    snake.direction = pending;
+                } else {
+                    pending = snake.direction;
+                }
                 // pop the last element from the snake queue i.e. the
                 // head
                 var nx = snake.last.x;

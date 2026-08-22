@@ -1,5 +1,6 @@
 \documentclass{article}
 \usepackage{amsmath}
+\usepackage{tikz}
 
 \begin{document}
 
@@ -10,27 +11,44 @@
 
 \section*{Proof}
 
-Consider a right triangle with sides of length \(a\), \(b\), and hypotenuse \(c\).
+Consider a right triangle with legs of length \(a\) and \(b\), and hypotenuse \(c\).
 
-We can construct a square with side length \(a + b\) and place four copies of the right triangle inside it, as shown below:
+We can construct a square with side length \(a + b\) and place four copies of the
+right triangle inside it, each copy a quarter turn from the last, so that along
+every side of the large square a leg of length \(a\) is followed by a leg of
+length \(b\):
 
-\[
-\begin{array}{|c|c|c|c|}
-\hline
-& & & \\
-\hline
-& & & \\
-\hline
-& & & \\
-\hline
-\end{array}
-\]
+\begin{center}
+\begin{tikzpicture}[scale=0.48]
+  % the large square, side a + b (drawn with a = 3, b = 4, c = 5)
+  \draw[thick] (0,0) rectangle (7,7);
+  % four copies of the triangle, each rotated a quarter turn from the last
+  \fill[black!12] (3,0) -- (7,0) -- (7,3) -- cycle;
+  \fill[black!12] (7,3) -- (7,7) -- (4,7) -- cycle;
+  \fill[black!12] (4,7) -- (0,7) -- (0,4) -- cycle;
+  \fill[black!12] (0,4) -- (0,0) -- (3,0) -- cycle;
+  % the square left in the middle, each side a hypotenuse
+  \draw[thick] (3,0) -- (7,3) -- (4,7) -- (0,4) -- cycle;
+  \node[below] at (1.5,0) {\(a\)};
+  \node[below] at (5,0)   {\(b\)};
+  \node[right] at (7,1.5) {\(a\)};
+  \node[right] at (7,5)   {\(b\)};
+  \node at (5.35,1.05) {\(c\)};
+  \node at (3.5,3.5) {\(c^2\)};
+\end{tikzpicture}
+\end{center}
 
 The area of the large square is \((a + b)^2\).
 
 The four right triangles each have an area of \(\frac{1}{2}ab\).
 
-The remaining area in the center is a smaller square with side length \(c\), so its area is \(c^2\).
+The quadrilateral left in the center has all four sides equal to \(c\), because
+each side is the hypotenuse of one copy. Its corners are right angles: where two
+copies meet on a side of the large square, that straight angle is made up of the
+two acute angles \(\alpha\) and \(\beta\) of the triangle together with the
+corner of the quadrilateral, and \(\alpha + \beta = 90^\circ\) since they are the
+acute angles of a right triangle. The center is therefore a square, and its area
+is \(c^2\).
 
 Thus, we have:
 

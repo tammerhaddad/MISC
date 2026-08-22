@@ -1,7 +1,7 @@
 import pyautogui as pyg
 
 # while True:
-#     print(pyautogui.position())
+#     print(pyg.position())
 
 # for i in range(40):
 #     pyg.click(355, 990-20*i)

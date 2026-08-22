@@ -13,3 +13,15 @@ epub2audiobook/voices-v1.0.bin
 
 # Local scratch backups
 *.bak-preclaude
+
+# LaTeX build artifacts. Regenerated on every build, and the .log/.fls/
+# .fdb_latexmk ones embed the absolute path they were built from. The .pdf
+# is the deliverable, so it stays tracked.
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+__pycache__/
+*.pyc
