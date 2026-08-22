@@ -6,5 +6,5 @@ flavor = "teriyaki, salty, bbq, indian spice, sour, chili, savory".split(", ")
 food = [starches, protein, flavor]
 
 for i in range(10):
-    nums = [i[random.randrange[len(i)]] for i in food]
+    nums = [random.choice(group) for group in food]
     print(f"{i+1}. {nums[0]}, {nums[1]}, {nums[2]}")

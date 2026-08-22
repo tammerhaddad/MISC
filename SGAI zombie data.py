@@ -9,51 +9,45 @@ LongestGame = 0
 AllKills = []
 AllHeals = []
 AllMeds = []
-AverageZP = []
-AverageAnxiety = []
-AverageOutrage = []
 i = 0
 GameLengths = []
+
+# Running per-turn totals, plus how many games were still going on that turn.
+# `list[:n] += other` concatenates instead of adding element-wise, so the old
+# version grew these lists rather than summing them.
+ZPTotals, ZPCounts = [], []
+AnxietyTotals, AnxietyCounts = [], []
+OutrageTotals, OutrageCounts = [], []
+
+
+def accumulate(totals, counts, series):
+    """Add one game's per-turn series into the running totals and counts."""
+    while len(totals) < len(series):
+        totals.append(0.0)
+        counts.append(0)
+    for turn, value in enumerate(series):
+        totals[turn] += value
+        counts[turn] += 1
+
+
 for dataset in Data:
     for game in dataset:
         i += 1
-        for kill in game[0]:
-            AllKills.append(kill)
-        for heal in game[1]:
-            AllHeals.append(heal)
-        for med in game[2]:
-            AllMeds.append(med)
+        AllKills.extend(game[0])
+        AllHeals.extend(game[1])
+        AllMeds.extend(game[2])
         zp = game[3]
         ax = game[4]
         ot = game[5]
 
-        added = []
         GameLengths.append(len(zp))
-        if len(AverageZP) < len(zp):
-            added = zp.copy()
-            added[:len(AverageZP)] += AverageZP
-        else:
-            added = AverageZP.copy()
-            added[:len(zp)] += zp
-        AverageZP = added.copy()
+        accumulate(ZPTotals, ZPCounts, zp)
+        accumulate(AnxietyTotals, AnxietyCounts, ax)
+        accumulate(OutrageTotals, OutrageCounts, ot)
 
-        if len(AverageAnxiety) < len(ax):
-            added = ax.copy()
-            added[:len(AverageAnxiety)] += AverageAnxiety
-        else:
-            added = AverageAnxiety.copy()
-            added[:len(ax)] += ax
-        AverageAnxiety = added.copy()
-
-        if len(AverageOutrage) < len(ot):
-            added = ot.copy()
-            added[:len(AverageOutrage)] += AverageOutrage
-        else:
-            added = AverageOutrage.copy()
-            added[:len(ot)] += ot
-        AverageOutrage = added.copy()
-
-AverageZP.sort()
-AverageAnxiety.sort()
-AverageOutrage.sort()
-print("Of ", i, " games, these are the outcomes:\nAll Kills: ", AllKills, "\nAll Heals: ", AllHeals, "\nAll Meds: ", AllMeds, "\nAverage ZP: ", AverageZP, "\nAverage Anxiety: ", AverageAnxiety, "\nAverage Outrage: ", AverageOutrage)
+LongestGame = max(GameLengths, default=0)
+# keep these in turn order -- sorting a per-turn average is meaningless
+AverageZP = [round(t / c, 2) for t, c in zip(ZPTotals, ZPCounts)]
+AverageAnxiety = [round(t / c, 2) for t, c in zip(AnxietyTotals, AnxietyCounts)]
+AverageOutrage = [round(t / c, 2) for t, c in zip(OutrageTotals, OutrageCounts)]
+print("Of ", i, " games, these are the outcomes:\nLongest Game: ", LongestGame, "\nAll Kills: ", AllKills, "\nAll Heals: ", AllHeals, "\nAll Meds: ", AllMeds, "\nAverage ZP: ", AverageZP, "\nAverage Anxiety: ", AverageAnxiety, "\nAverage Outrage: ", AverageOutrage)

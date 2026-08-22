@@ -12,8 +12,11 @@ def pbar(iteration, total, prefix = '', suffix = '', decimals = 1, length = 100,
         fill        - Optional  : bar fill character (Str)
         printEnd    - Optional  : end character (e.g. "\r", "\r\n") (Str)
     """
-    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
-    filledLength = int(length * iteration // total)
+    # an empty collection has nothing left to do, so show it as complete
+    # rather than dividing by zero
+    fraction = 1.0 if total == 0 else iteration / float(total)
+    percent = ("{0:." + str(decimals) + "f}").format(100 * fraction)
+    filledLength = int(length * fraction)
     bar = fill * filledLength + '-' * (length - filledLength)
     print(f'\r{prefix} |{bar}| {percent}% {suffix}  ({iteration}/{total})', end = printEnd)
     # Print New Line on Complete

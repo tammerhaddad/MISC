@@ -1,6 +1,6 @@
 import torch
 import torchaudio
-from tortoise.api import TextToSpeech, MODELS_DIR
+from tortoise.api import TextToSpeech
 from tortoise.utils.audio import load_voice
 import os
 import re
@@ -9,11 +9,25 @@ def split_text_into_chunks(text, max_chars=300):
     """Split text into chunks at sentence boundaries, keeping under max_chars"""
     # Split by sentence endings
     sentences = re.split(r'(?<=[.!?])\s+', text)
-    
+
+    # A sentence can be longer than max_chars all by itself -- epub text often
+    # has headings and passages with no terminal punctuation -- so break those
+    # on word boundaries instead of handing an oversized chunk to the model.
+    pieces = []
+    for sentence in sentences:
+        while len(sentence) > max_chars:
+            cut = sentence.rfind(' ', 0, max_chars + 1)
+            if cut <= 0:
+                cut = max_chars  # a single word longer than max_chars
+            pieces.append(sentence[:cut].strip())
+            sentence = sentence[cut:].lstrip()
+        if sentence:
+            pieces.append(sentence)
+
     chunks = []
     current_chunk = ""
-    
-    for sentence in sentences:
+
+    for sentence in pieces:
         # If adding this sentence would exceed max_chars, start a new chunk
         if len(current_chunk) + len(sentence) > max_chars and current_chunk:
             chunks.append(current_chunk.strip())
@@ -45,7 +59,9 @@ def text_file_to_mp3(input_path, output_path, voice='train_mouse', preset='high_
     # Split text into manageable chunks
     text_chunks = split_text_into_chunks(text)
     print(f"Split text into {len(text_chunks)} chunks")
-    
+    if not text_chunks:
+        raise ValueError(f"{input_path} has no text to synthesize")
+
     # Generate audio for each chunk
     audio_chunks = []
     for i, chunk in enumerate(text_chunks):
@@ -67,9 +83,13 @@ def text_file_to_mp3(input_path, output_path, voice='train_mouse', preset='high_
     # Move tensor to CPU for saving
     full_audio_cpu = full_audio.cpu()
     
-    # Save as wav
-    wav_path = output_path.replace('.mp3', '.wav')
+    # Save as wav. splitext rather than replace('.mp3', '.wav') so that an
+    # output name without a .mp3 suffix still lands on a .wav file.
+    wav_path = os.path.splitext(output_path)[0] + '.wav'
+    out_dir = os.path.dirname(os.path.abspath(wav_path))
+    os.makedirs(out_dir, exist_ok=True)
     torchaudio.save(wav_path, full_audio_cpu, 24000)
+    print(f"Saved {wav_path}")
     
     # # Convert wav to mp3
     # import subprocess
@@ -81,8 +101,8 @@ def text_file_to_mp3(input_path, output_path, voice='train_mouse', preset='high_
 if __name__ == "__main__":
     import sys
     if len(sys.argv) != 3:
-        print("Usage: python epubToMp3 <input_text_file> <output_mp3_file>")
-        print("Example: python epubToMp3 input.txt output.mp3")
+        print("Usage: python epubToMp3.py <input_text_file> <output_file>")
+        print("Example: python epubToMp3.py input.txt output.wav")
         sys.exit(1)
     
     input_file = sys.argv[1]

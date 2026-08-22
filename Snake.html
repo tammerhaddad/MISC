@@ -8,13 +8,8 @@
 	<style>
 	canvas {
 		display: block;
-		position: center;
 		border: 5px solid #917;
 		margin: auto;
-		top: 1;
-		bottom: 0.5;
-		right: 0.5;
-		left: 1;
 	}
 	</style>
 </head>
@@ -51,7 +46,7 @@
          * 
          * @type {Object}
          */
-        grid = {
+        var grid = {
             width: null,  /* number, the number of columns */
             height: null, /* number, the number of rows */
             _grid: null,  /* Array<any>, data representation */
@@ -92,14 +87,14 @@
             get: function(x, y) {
                 return this._grid[x][y];
             }
-        }
+        };
         /**
          * The snake, works as a queue (FIFO, first in first out) of data
          * with all the current positions in the grid with the snake id
          * 
          * @type {Object}
          */
-        snake = {
+        var snake = {
             direction: null, /* number, the direction */
             last: null,		 /* Object, pointer to the last element in
                                 the queue */
@@ -150,8 +145,13 @@
                     }
                 }
             }
-            // chooses a random cell
-            var randpos = empty[Math.round(Math.random()*(empty.length - 1))];
+            // the snake filled the board, so there is nowhere to put fruit
+            if (empty.length === 0) {
+                return;
+            }
+            // chooses a random cell. floor over round, which would give the
+            // first and last cell half the odds of the others.
+            var randpos = empty[Math.floor(Math.random()*empty.length)];
             grid.set(FRUIT, randpos.x, randpos.y);
         }
         /**
@@ -199,7 +199,7 @@
             draw();
             // When ready to redraw the canvas call the loop function
             // first. Runs about 60 frames a second
-            window.requestAnimationFrame(loop, canvas);
+            window.requestAnimationFrame(loop);
         }
         /**
          * Updates the game logic
@@ -220,8 +220,10 @@
             if (keystate[KEY_DOWN] && snake.direction !== UP) {
                 snake.direction = DOWN;
             }
-            // each five frames update the game state.
-            if (frames%1 === 0) {
+            // each five frames update the game state. Modulo 1 is always 0,
+            // which made the `frames` counter pointless and stepped the snake
+            // once per animation frame -- too fast to steer.
+            if (frames%5 === 0) {
                 // pop the last element from the snake queue i.e. the
                 // head
                 var nx = snake.last.x;
@@ -262,10 +264,11 @@
                 // add a snake id at the new position and append it to 
                 // the snake queue
                 grid.set(SNAKE, nx, ny);
-                snake.insert(nx, ny);// growing --------------------------------------
+                // one insert per cell entered. Inserting twice put duplicate
+                // coordinates in the queue, so removing the tail later cleared
+                // a cell the body still occupied and the snake could pass
+                // through itself.
                 snake.insert(nx, ny);
-                score++;
-                
             }
         }
         // Grid on canvas ---------------------------------------------------------------
@@ -285,7 +288,7 @@
                             ctx.fillStyle = "#0f0";
                             break;
                         case FRUIT:
-                            ctx.fillStyle = "#00f";
+                            ctx.fillStyle = "#f00"; // must differ from EMPTY or the fruit is invisible
                             break;
                     }
                     ctx.fillRect(x*tw, y*th, tw, th);

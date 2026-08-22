@@ -27,4 +27,8 @@ def split_epub(epub_path, output_dir):
     print(f"✅ Done! Extracted {chapter_count} chapters to {output_dir}")
 
 # Example usage
-split_epub("resources/The Crafting of Chess (Kit Falbo).epub", "TestFolder/output_chapters")
+if __name__ == "__main__":
+    # relative to this script, so it works from any working directory
+    here = os.path.dirname(os.path.abspath(__file__))
+    split_epub(os.path.join(here, "resources", "The Crafting of Chess (Kit Falbo).epub"),
+               os.path.join(here, "TestFolder", "output_chapters"))
